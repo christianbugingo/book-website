@@ -1,0 +1,34 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String   // hashed password
+  role      Role     @default(USER)  // either USER or ADMIN
+  createdAt DateTime @default(now())
+  books     Book[]   @relation("UploadedBooks") // books uploaded by the user
+}
+
+model Book {
+  id          Int      @id @default(autoincrement())
+  title       String
+  author      String
+  description String?
+  fileUrl     String
+  createdAt   DateTime @default(now())
+  uploaderId  Int?
+  uploader    User?    @relation("UploadedBooks", fields: [uploaderId], references: [id])
+}
+
+enum Role {
+  USER
+  ADMIN
+}
